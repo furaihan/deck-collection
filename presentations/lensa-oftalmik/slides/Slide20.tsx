@@ -1,5 +1,5 @@
 import { Film, Title, Label } from "../Frame";
-import { C, FONT, LIT } from "../theme";
+import { C, FONT } from "../theme";
 
 const revision = [
   { topic: "Kaca", fact: "Amorf: mendingin tanpa kristalisasi.", ref: "F05" },

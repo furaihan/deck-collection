@@ -1,4 +1,4 @@
-import { Film, Title, Label, Numeral, Kicker } from "../Frame";
+import { Film, Title, Label, Numeral } from "../Frame";
 import { Fraction } from "../Pieces";
 import { C, FONT, LIT } from "../theme";
 

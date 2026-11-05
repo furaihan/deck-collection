@@ -1,4 +1,4 @@
-import { Film, Title, Label, Numeral, Kicker } from "../Frame";
+import { Film, Title, Label } from "../Frame";
 import { C, FONT, LIT } from "../theme";
 
 /** 300-500 nm mapped linearly onto the 700 px the frame gives the axis. */

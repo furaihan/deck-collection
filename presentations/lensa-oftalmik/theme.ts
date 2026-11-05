@@ -49,6 +49,9 @@ export const C = {
 export const LIT = {
   glass:
     "radial-gradient(120% 90% at 18% -10%, rgba(255,252,242,0.95) 0%, rgba(255,248,232,0.35) 34%, rgba(244,239,230,0) 62%), radial-gradient(90% 70% at 96% 104%, rgba(196,170,120,0.22) 0%, rgba(244,239,230,0) 58%), linear-gradient(168deg, #F7F3EA 0%, #F1EADA 46%, #E9E0CD 100%)",
+  /** Deepened paper for frames that need less bounce: same falloff, dimmer base. */
+  glassDeep:
+    "radial-gradient(120% 90% at 18% -10%, rgba(255,252,242,0.55) 0%, rgba(255,248,232,0.18) 34%, rgba(244,239,230,0) 62%), radial-gradient(90% 70% at 96% 104%, rgba(196,170,120,0.12) 0%, rgba(244,239,230,0) 58%), linear-gradient(168deg, #EFE7D3 0%, #E7DEC7 46%, #DAD0B8 100%)",
   ink:
     "radial-gradient(120% 100% at 22% -20%, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 55%), linear-gradient(160deg, #16181B 0%, #101113 60%, #0A0B0C 100%)",
   /** The raised plate: warm paper with a hairline of light along the top edge. */
