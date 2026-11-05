@@ -5,9 +5,13 @@ description: Use when asked to create, make, or build a new presentation, deck, 
 
 # create-presentation
 
-Guide for creating a new presentation in this repo (Deck Loader). A presentation is a folder of React slide components in `presentations/<slug>/`, rendered on a fixed 1920x1080 canvas and exported to PDF for submission. "Create a PPT" means a new deck in this app, never a real .pptx file. PDF is the only export format.
+Guide for creating a new presentation in this repo: a deck is a folder of React
+slide components in `presentations/<slug>/`, rendered on a fixed 1920x1080 canvas
+and exported to PDF for submission. "Create a PPT" means a new deck in this app,
+never a real .pptx file. PDF is the only export format.
 
-Read `AGENTS.md` first. It is the source of truth for the contract and hard rules. This skill adds the workflow and the design requirements on top of it.
+Read `AGENTS.md` first. It is the source of truth for the contract and hard rules.
+This skill adds the workflow and the design requirements on top of it.
 
 ## Non-negotiable rules
 
@@ -52,17 +56,13 @@ Slug is kebab-case and must not already exist. This creates `presentation.json` 
 1. Read `.agents/skills/impeccable/SKILL.md` and follow its Setup (run its `context` command once, load the new-work playbook, and read `reference/craft-floor.md` right before editing UI).
 2. Give impeccable the approved palette as a pinned brief ("the brief wins"). Let impeccable handle everything beyond that: concept and visual world, typography, layout, hierarchy, rhythm, motion decisions, and polish.
 3. Treat the deck as its own design world. The repo-root `PRODUCT.md` and `DESIGN.md` describe the app shell, not the deck. Capture the deck's system in the deck's own `theme.ts` (colors, type, spacing) and, if useful, a `DESIGN.md` inside the deck folder. Every slide imports from `../theme`.
-4. The impeccable output must still obey the project's hard rules below. If an impeccable suggestion conflicts with them, the hard rules win.
+4. The impeccable output must still obey `AGENTS.md` §2. That table is the hard
+   contract and wins over any design suggestion. Two constraints live only here:
 
-Project hard rules that apply on top of impeccable:
-
-- Author at 1920x1080 px. Root of each slide is `h-full w-full`. Use px or % of the slide, never `vh`, `vw`, `vmin`, `vmax`, `dvh`, `svh`, `h-screen`, `w-screen`, `min-h-screen`.
-- No shadcn components (`@/components/ui/*`) and no shell theme tokens (`--background`, `--foreground`, `--primary`, `--muted`, `--card`, `--border`, `bg-muted`, `text-foreground`, and so on).
-- No external resources: no `http(s)://` in `src`, `href`, or `url()`, no CDN fonts. Bundle fonts as local files in `assets/` and load them with `@font-face`.
-- Imports only from the allowlist in `presentations.config.ts` (`react`, `react-dom`, `lucide-react`, Tailwind utilities, relative imports inside the same deck).
-- Text must not overflow the slide. Body text at least 28px, headings at least 56px, captions never below 18px.
-- One idea per slide. Vary layouts across the deck but keep one coherent visual system. Do not add animations that change the final state, since export captures the final stable state.
-- Keep images small (under 1 MB each) so the PDF stays under about 20 MB.
+   - Do not add animation that changes the final state; export captures the
+     settled frame.
+   - Keep each image under `maxImageBytes` in `presentations.config.ts` so the
+     PDF stays under the ~20 MB upload limit.
 
 ## Step 5: Write the slides
 

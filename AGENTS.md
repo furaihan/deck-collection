@@ -68,7 +68,7 @@ not a style preference.
 | Rule | Why |
 | --- | --- |
 | Draw on **1920x1080 px**, `h-full w-full` on the root | The canvas is fixed; it is scaled, never resized |
-| Use **px** (or % of the slide) — never `vh`/`vw`/`vmin`/`vmax`/`dvh`/`svh`, never `h-screen`/`w-screen`/`min-h-screen` | The canvas is not the viewport |
+| Use **px** (or % of the slide) — never viewport units or viewport utilities (the exact lists are `bannedUnits` / `bannedUtilities` in `presentations.config.ts`) | The canvas is not the viewport |
 | No `@/components/ui/*` (shadcn) | Slides are standalone; the shell's UI is not theirs |
 | No shadcn/app theme variables (`--background`, `--foreground`, `--primary`, `--muted`, `--card`, `--border`, `bg-muted`, `text-foreground`, `border-border`, …) | The shell palette must never leak into a deck |
 | No external resources: no `http(s)://` in `src`/`href`/`url()`, no CDN fonts, no `@import url(http…)` | Exports must work offline and stay reproducible |
@@ -99,67 +99,46 @@ off-list import as: *"ask the user before adding dependencies"*.
 
 ## 3. Design guidance
 
-- **One idea per slide.** If the title needs an "and", split it.
-- **Real hierarchy**: one dominant element (usually the headline), one supporting
-  layer, and nothing else competing for attention.
-- **Consistent spacing.** Pick a rhythm (e.g. 140px side margins, 112px top and
-  bottom, 40px between blocks) and keep it across every slide.
-- **Vary layout, not language.** Alternate cover / bullets / big quote / split /
-  stat slides so the deck has rhythm — but keep one visual system.
-- **Define the system once.** Put colours and type in a small
-  `presentations/<slug>/theme.ts` or CSS file and import it into every slide.
-  Changing the palette then means editing one file.
-- **Leave whitespace.** An empty third of a slide reads as confidence; a full
-  slide reads as panic.
-- **No decoration for its own sake.** Icons earn their place by labelling
-  something; a shape earns it by grouping something.
+The deck's visual system — colours, type, spacing — lives in
+`presentations/<slug>/theme.ts` and every slide imports from it. Never colour a
+slide individually.
+
+Design work runs through the **impeccable** skill; the process and the design
+requirements are in `.agents/skills/create-presentation/SKILL.md`.
 
 ---
 
 ## 4. Workflow: creating a new presentation
 
-1. **Scaffold**
-   ```bash
-   bun run new <slug> "<Title>"
-   ```
-   Creates `presentation.json` (today's date, `visibility: "private"`),
-   `Presentation.tsx` with three slides, `slides/Slide01-03.tsx`, `theme.ts` and
-   an empty `assets/`. Or build the folder by hand — same files, same rules.
+The full procedure is in `.agents/skills/create-presentation/SKILL.md`. Read it
+before step 3. The outline:
 
-2. **Ask for anything you do not have** — topic, course, audience, language,
-   rough slide count — **only if it is not already in the request**.
-
-3. **Write the slides.** Author against 1920x1080. Import from `../theme`.
-
-4. **Validate.**
-   ```bash
-   bun run validate <slug>
-   ```
-   Fix **every error**. Warnings are reviewed, not ignored.
-
-5. **Look at the slides.** Open `.validation/<slug>/slide-01.png` … and check
-   each one for text overlap, awkward whitespace, weak contrast, cut-off content
-   and anything that landed in the wrong place. The validator measures geometry;
-   only you can see whether it looks good.
-
-6. **Export.**
-   ```bash
-   bun run export <slug>
-   ```
-   The page count must equal the slide count. The command prints both and exits
-   non-zero if they disagree.
-
-7. **Report**: slide count, PDF path and size, remaining warnings.
+1. **Gather** anything the request does not already say — topic or source
+   material, course, audience, language, rough slide count.
+2. **Settle the palette** (at least 4 colours with roles) before writing a slide.
+3. **Scaffold:** `bun run new <slug> "<Title>"` — creates a private deck with
+   metadata, a three-slide array, `theme.ts` and an empty `assets/`. Or build the
+   folder by hand; same files, same rules.
+4. **Design and write the slides** with impeccable, against 1920x1080, importing
+   from `../theme`.
+5. **Validate:** `bun run validate <slug>` — fix every error, review every
+   warning.
+6. **Look at the screenshots** in `.validation/<slug>/`. The validator measures
+   geometry; only you can see whether it looks good.
+7. **Typecheck and export:** `bun run typecheck`, then `bun run export <slug>`;
+   the page count must equal the slide count.
+8. **Report** slide count, palette, PDF path and size, remaining warnings.
 
 ## 5. Workflow: editing an existing presentation
 
-1. Read `presentations/<slug>/presentation.json` and `Presentation.tsx` first.
-2. Edit the slides (and `theme.ts`, not individual colours).
-3. `bun run validate <slug>` — fix every error.
-4. Re-open the affected `.validation/<slug>` screenshots.
-5. `bun run export <slug>` again (the validator warns when the PDF is older than
-   the sources).
-6. Report what changed.
+1. Read `presentations/<slug>/presentation.json`, `Presentation.tsx` and
+   `theme.ts` first.
+2. Edit the slides; change colours in `theme.ts`, never per slide. Keep the
+   existing palette unless the user asks for a new one.
+3. `bun run validate <slug>` — fix every error, then re-open the affected
+   `.validation/<slug>` screenshots.
+4. `bun run export <slug>` again and report what changed. The validator warns
+   when the PDF is older than the sources.
 
 ---
 

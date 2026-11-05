@@ -79,7 +79,8 @@ least one error and always ends with a verdict line
 slide to `.validation/<slug>/slide-NN.png` — look at them before calling a deck
 finished.
 
-Full slide rules and the authoring workflow are in [AGENTS.md](./AGENTS.md).
+Full slide rules are in [AGENTS.md](./AGENTS.md); the authoring workflow is the
+`create-presentation` skill in `.agents/skills/create-presentation/`.
 
 ## Export
 
@@ -172,4 +173,5 @@ PDF. New decks are private by default; only you decide when one becomes public.
 ## Notes
 
 - Package manager: **Bun** only (`bun add`, `bun run <script>`).
-- See [AGENTS.md](./AGENTS.md) for the slide authoring contract.
+- See [AGENTS.md](./AGENTS.md) for the slide authoring contract and
+  `.agents/skills/create-presentation/SKILL.md` for the workflow.
