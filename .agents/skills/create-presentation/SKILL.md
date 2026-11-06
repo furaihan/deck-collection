@@ -93,7 +93,7 @@ bun run typecheck
 bun run export <slug>
 ```
 
-Typecheck must be clean (a dirty typecheck breaks `bun run build` on the VPS). Export writes `exports/<slug>.pdf`; confirm the PDF page count equals the slide count (the command checks and exits non-zero on mismatch). `exports/*.pdf` is meant to be committed to git, so tell the user to commit it with the deck.
+Typecheck must be clean (a dirty typecheck breaks `bun run build` on the VPS). Export writes `exports/<slug>.pdf`; confirm the PDF page count equals the slide count (the command checks and exits non-zero on mismatch).
 
 ## Step 9: Report
 

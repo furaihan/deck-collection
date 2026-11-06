@@ -95,9 +95,6 @@ The PDF keeps text selectable: only images and vector-drawn UI are rasterised.
 A deck larger than 20 MB prints a warning (typical LMS upload limits), not an
 error.
 
-`exports/*.pdf` **is committed** — PDFs are produced on the author's machine, and
-the server only serves them. Do not run Playwright in the deploy flow.
-
 ## Deploy
 
 Static SPA on a VPS, no CI, no containers.

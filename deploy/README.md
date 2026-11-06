@@ -22,5 +22,4 @@ If git lost the executable bit (a Windows checkout does), run it as
 
 It runs `git pull --ff-only`, `bun install --frozen-lockfile`, `bun run build`,
 then `rsync -a --delete dist/ "$WEB_ROOT/"`, with `set -euo pipefail` so the
-first failure stops it. Playwright is never invoked: PDFs are committed from the
-author's machine and copied out of `exports/` during the build.
+first failure stops it.
