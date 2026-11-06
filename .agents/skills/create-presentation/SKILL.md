@@ -17,7 +17,10 @@ This skill adds the workflow and the design requirements on top of it.
 
 - Design ALWAYS goes through the **impeccable** skill (`.agents/skills/impeccable/`). Never design slides by instinct alone.
 - Every deck needs a **color palette of at least 4 colors**, decided with the user before any slide is written.
+- Every presentation deck must use at least two distinct primary colors, excluding black, white, and their variations (e.g., shades, tints, and tones of black and white, including gray). These two primary colors must be applied consistently throughout the presentation to establish a cohesive visual identity.
 - New decks are `"visibility": "private"`. Never set `"public"` yourself.
+- Every deck is strongly encouraged to use icons to enhance visual communication and make slides more engaging. Prefer Lucide icons over custom icons whenever a suitable Lucide icon is available. Use custom icons only when Lucide does not provide an appropriate option.
+- Never add new icon library or package beside lucide-icon
 - Package manager is Bun. Never npm, yarn, or pnpm. Do not add dependencies without asking.
 - Never say "done" before `bun run validate <slug>` passes with 0 errors AND you have looked at the screenshots.
 
