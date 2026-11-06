@@ -220,3 +220,7 @@ Private decks appear in development with a badge and are **removed from
 production bundles**, code and metadata alike; their PDFs never reach `dist/`.
 
 **PDF is the only supported export format.** PPTX export and browser-print shortcuts are not supported and must not be added. If the user says something like "create a PPT," treat it as a request to create a new presentation within the application, not as a request to generate an actual PPT file.
+
+### `.material` Folder
+
+The `.material` folder is intended for prbuesentation materials only. Do not put anything else in this folder.
