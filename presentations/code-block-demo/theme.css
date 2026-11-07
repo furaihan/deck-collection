@@ -1,0 +1,21 @@
+/*
+ * Self-hosted faces for this deck only. Both files are variable, latin-subset
+ * woff2 pulled once into assets/ — the deck never reaches a CDN at render or
+ * print time.
+ */
+
+@font-face {
+  font-family: "Bricolage Deck";
+  src: url("./assets/bricolage-grotesque.woff2") format("woff2");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: "Azeret Deck";
+  src: url("./assets/azeret-mono.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}
