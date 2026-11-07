@@ -69,12 +69,14 @@ working three-slide example.
 
 ```bash
 bun run new <slug> "<Title>"   # scaffold a private deck with three slides
+bun run validate               # pilih deck secara interaktif
 bun run validate <slug>        # static + browser checks, writes screenshots
 bun run export <slug>          # prints exports/<slug>.pdf
 ```
 
-Both accept `--all` instead of a slug. `validate` exits non-zero when there is at
-least one error and always ends with a verdict line
+Both accept `--all` instead of a slug. Without an argument, `validate` shows an
+interactive selector when run in a terminal. `validate` exits non-zero when there
+is at least one error and always ends with a verdict line
 (`PASS: 0 errors, 2 warnings`). It also writes a 1920x1080 screenshot of every
 slide to `.validation/<slug>/slide-NN.png` — look at them before calling a deck
 finished.
