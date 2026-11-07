@@ -1,5 +1,6 @@
 /**
- * `bun run export <slug>` / `bun run export --all`
+ * `bun run export` / `bun run export <slug>` / `bun run export --all`
+ * Add `--overwrite` to replace an existing PDF without prompting.
  *
  * Renders each deck's `/export/<slug>?export=1` page in Chromium and prints it to
  * `exports/<slug>.pdf`, one 1920x1080 page per slide.
@@ -7,7 +8,7 @@
  * The dev server is started here on a free port, because production builds drop
  * private decks and a private deck still has to be submitted.
  */
-import { mkdirSync, statSync } from "node:fs";
+import { existsSync, mkdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { chromium, type Browser, type Page } from "playwright";
 import { PDFDocument } from "pdf-lib";
@@ -17,8 +18,10 @@ import {
   findDeck,
   formatBytes,
   selectTargets,
+  type TargetSelection,
   type DeckFiles,
 } from "./_decks";
+import { chooseTargets, confirmOverwrite, isInteractiveTerminal } from "./_interactive";
 import { startDevServer, type DevServerHandle } from "./_server";
 import { waitForExportReady, waitForStablePage } from "./_page";
 
@@ -33,8 +36,11 @@ const PDF_OPTIONS = {
   preferCSSPageSize: true,
 } as const;
 
-const USAGE = `Usage: bun run export <slug>
-       bun run export --all`;
+const USAGE = `Usage: bun run export
+       bun run export <slug>
+       bun run export --all
+       bun run export --overwrite <slug>
+       bun run export --overwrite --all`;
 
 interface ExportResult {
   slug: string;
@@ -81,16 +87,75 @@ async function exportDeck(
     const outDir = join(process.cwd(), "exports");
     mkdirSync(outDir, { recursive: true });
     const outPath = join(outDir, `${deck.slug}.pdf`);
+    const displayPath = `exports/${deck.slug}.pdf`;
     await Bun.write(outPath, pdf);
 
     const doc = await PDFDocument.load(pdf);
     const pages = doc.getPageCount();
     const bytes = statSync(outPath).size;
 
-    return { slug: deck.slug, path: outPath, bytes, slides, pages, ok: pages === slides };
+    return { slug: deck.slug, path: displayPath, bytes, slides, pages, ok: pages === slides };
   } finally {
     await context.close();
   }
+}
+
+async function selectExportTargets(argv: readonly string[]): Promise<{
+  selection: TargetSelection | null;
+  overwrite: boolean;
+  exitCode: number;
+}> {
+  const overwrite = argv.includes("--overwrite");
+  const targetArgs = argv.filter((arg) => arg !== "--overwrite");
+
+  if (targetArgs.length === 0 && isInteractiveTerminal()) {
+    const interactive = await chooseTargets("export");
+    return { ...interactive, overwrite };
+  }
+
+  try {
+    return { selection: selectTargets(targetArgs), overwrite, exitCode: 0 };
+  } catch (cause) {
+    if (cause instanceof UsageError) {
+      console.error(`${cause.message}\n\n${USAGE}`);
+      return { selection: null, overwrite, exitCode: 2 };
+    }
+    throw cause;
+  }
+}
+
+async function prepareDecks(
+  decks: readonly DeckFiles[],
+  overwrite: boolean,
+): Promise<{ decks: DeckFiles[]; failures: number }> {
+  const selected: DeckFiles[] = [];
+  let failures = 0;
+
+  for (const deck of decks) {
+    const outPath = join(process.cwd(), "exports", `${deck.slug}.pdf`);
+    const displayPath = `exports/${deck.slug}.pdf`;
+    if (!existsSync(outPath) || overwrite) {
+      selected.push(deck);
+      continue;
+    }
+
+    if (!isInteractiveTerminal()) {
+      console.error(
+        `FAIL ${deck.slug}: ${displayPath} already exists and cannot be overwritten in non-interactive mode.\n` +
+          "     Use --overwrite to replace it.",
+      );
+      failures += 1;
+      continue;
+    }
+
+    if (await confirmOverwrite(displayPath)) {
+      selected.push(deck);
+    } else {
+      console.log(`SKIP ${deck.slug}: keeping existing ${displayPath}`);
+    }
+  }
+
+  return { decks: selected, failures };
 }
 
 function report(result: ExportResult): void {
@@ -123,33 +188,38 @@ async function main(): Promise<number> {
     return 0;
   }
 
-  let selection;
-  try {
-    selection = selectTargets(argv);
-  } catch (cause) {
-    if (cause instanceof UsageError) {
-      console.error(`${cause.message}\n\n${USAGE}`);
-      return 2;
-    }
-    throw cause;
-  }
+  const targetSelection = await selectExportTargets(argv);
+  if (!targetSelection.selection) return targetSelection.exitCode;
+  const { selection } = targetSelection;
+  const overwrite = targetSelection.overwrite;
 
   if (selection.slugs.length === 0) {
     console.error(`No presentations found in presentations/.\n\n${USAGE}`);
     return 2;
   }
 
-  const decks = selection.slugs
+  const requestedDecks = selection.slugs
     .map((slug) => findDeck(slug))
     .filter((deck): deck is DeckFiles => deck !== undefined);
+
+  const prepared = await prepareDecks(requestedDecks, overwrite);
+  const decks = prepared.decks;
+  let failures = prepared.failures;
+
+  if (decks.length === 0) {
+    if (failures > 0) {
+      console.error(`\n${failures} export(s) failed.`);
+      return 1;
+    }
+    console.log("\nNo presentations selected for export.");
+    return 0;
+  }
 
   // Exports run headless; the dev server is ours and is always shut down.
   process.env.DECK_LOADER_NO_PDF_COPY = "1";
 
   let server: DevServerHandle | undefined;
   let browser: Browser | undefined;
-  let failures = 0;
-
   const shutdown = async () => {
     await browser?.close().catch(() => undefined);
     await server?.close().catch(() => undefined);

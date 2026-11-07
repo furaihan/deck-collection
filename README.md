@@ -69,14 +69,16 @@ working three-slide example.
 
 ```bash
 bun run new <slug> "<Title>"   # scaffold a private deck with three slides
-bun run validate               # pilih deck secara interaktif
+bun run validate               # select a deck interactively
 bun run validate <slug>        # static + browser checks, writes screenshots
-bun run export <slug>          # prints exports/<slug>.pdf
+bun run export                 # select a deck and export it interactively
+bun run export <slug>          # print exports/<slug>.pdf
+bun run export --overwrite <slug> # overwrite an existing PDF without prompting
 ```
 
-Both accept `--all` instead of a slug. Without an argument, `validate` shows an
-interactive selector when run in a terminal. `validate` exits non-zero when there
-is at least one error and always ends with a verdict line
+Both accept `--all` instead of a slug. Without an argument, `validate` and
+`export` show an interactive selector when run in a terminal. `validate` exits
+non-zero when there is at least one error and always ends with a verdict line
 (`PASS: 0 errors, 2 warnings`). It also writes a 1920x1080 screenshot of every
 slide to `.validation/<slug>/slide-NN.png` — look at them before calling a deck
 finished.
@@ -92,6 +94,11 @@ decks are removed from production builds, and they still need exporting), opens
 backgrounds and the page's own `window.__EXPORT_READY__` flag, and prints
 `exports/<slug>.pdf` with one 1920x1080 page per slide. It then re-reads the PDF
 and fails if the page count does not match the slide count.
+
+Export never overwrites an existing PDF by default. In an interactive terminal,
+it asks for confirmation for each existing file. Use `--overwrite` to approve
+overwrites automatically. In a non-interactive environment, an existing PDF is
+left untouched and the command reports that `--overwrite` is required.
 
 The PDF keeps text selectable: only images and vector-drawn UI are rasterised.
 A deck larger than 20 MB prints a warning (typical LMS upload limits), not an
