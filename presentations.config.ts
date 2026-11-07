@@ -14,7 +14,7 @@ export const presentationsConfig = {
    * A subpath is allowed when its first segment matches, so `react-dom/client`
    * needs only `react-dom`.
    */
-  allowedImports: ["react", "react-dom", "lucide-react"],
+  allowedImports: ["react", "react-dom", "lucide-react", "@tanstack/highlight"],
 
   /**
    * shadcn / app-shell theme tokens a slide must never reference. Slides are

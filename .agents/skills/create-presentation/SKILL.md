@@ -20,8 +20,8 @@ This skill adds the workflow and the design requirements on top of it.
 - Every presentation deck must use at least two distinct primary colors, excluding black, white, and their variations (e.g., shades, tints, and tones of black and white, including gray). These two primary colors must be applied consistently throughout the presentation to establish a cohesive visual identity.
 - New decks are `"visibility": "private"`. Never set `"public"` yourself.
 - Every deck is strongly encouraged to use icons to enhance visual communication and make slides more engaging. Prefer Lucide icons over custom icons whenever a suitable Lucide icon is available. Use custom icons only when Lucide does not provide an appropriate option.
-- Never add new icon library or package beside lucide-icon
-- Package manager is Bun. Never npm, yarn, or pnpm. Do not add dependencies without asking.
+- Never add a new icon library. For packages, the only ones a slide may import are the ones in `presentations.config.ts` (`allowedImports`): `react`, `react-dom`, `lucide-react`, `@tanstack/highlight`. Anything else needs the user's approval first.
+- Package manager is Bun. Never npm, yarn, or pnpm.
 - Never say "done" before `bun run validate <slug>` passes with 0 errors AND you have looked at the screenshots.
 
 ## Step 1: Gather what is missing
@@ -74,6 +74,43 @@ Slug is kebab-case and must not already exist. This creates `presentation.json` 
 - Every file in `slides/` must be in the array (no orphans).
 - Do not invent facts, statistics, or citations. If source material does not support a claim, leave it out or flag it.
 
+## Code blocks
+
+A code block is opt-in. Most decks need none — only add one when a slide is actually
+about code, or when a snippet is the clearest way to state a rule. When it is:
+
+1. **Copy the component in.** `presentations/code-block-demo/CodeBlock.tsx` is the
+   reference implementation; copy it into the new deck and import it relatively
+   (`./CodeBlock`, `../CodeBlock`). Each deck owns its copy — slides may not import
+   from another presentation or from `src/`.
+2. **Register only what the deck shows**, at module scope in that one file:
+
+   ```ts
+   const highlighter = createHighlighter({ languages: [ts, tsx] })
+   ```
+
+   Never import the root entry `@tanstack/highlight`: it builds a registry from all
+   79 bundled languages instead of the two the deck needs.
+3. **Fit by construction.** The canvas is fixed at 1920x1080 and the validator fails
+   on clipped text, so a code block must never scroll or wrap by accident. Derive the
+   type size from the longest line (`size = field ÷ (chars × advance)`), keep
+   `white-space: pre`, and pass the `width` the block actually occupies. The demo's
+   glyph advance is 0.65 em for the bundled mono face. If a line cannot fit at the
+   24px floor, split the example — never shrink below the floor.
+4. **Do not use `createThemeCss()`.** Its base styles emit
+   `pre.th-code { overflow-x: auto }`, which creates a scroll container inside the
+   slide and is reported as "text is cut off in …". Take the token colours from the
+   deck's `theme.ts` and apply them as inline `color`; the `--th-*` variables and any
+   `th-*` theme CSS stay out of the deck.
+5. **Bundle the mono face** in the deck's `assets/` with `@font-face` and set
+   `fontFamily` explicitly on the block. Never inherit the shell's mono stack; a deck
+   that relies on a font it did not ship prints in a fallback.
+6. **Decorations are the point.** `focus` lights rows, `mark` underlines one fragment.
+   They are how a slide points at the line it is talking about, so use them for
+   before/after, diffs, and annotations instead of colouring text by hand.
+7. Code text is body copy: 24px minimum, 28px preferred. Captions in the head and
+   gutter may go to 18px; never below.
+
 ## Step 6: Validate
 
 ```bash
@@ -108,3 +145,6 @@ Keep it short:
 ## Editing an existing deck
 
 Read `presentation.json`, `Presentation.tsx`, and `theme.ts` first. Change colors in `theme.ts`, not per slide. Keep the existing palette unless the user asks to change it. Then run validate, look at the affected screenshots, and re-export.
+
+- Code block colours, size floor and glyph advance live in the deck's `theme.ts` (the `CODE` block) like every other colour; never colour a token inline in a slide.
+- A deck that already has `CodeBlock.tsx` keeps its copy. Do not point it at the demo's file.

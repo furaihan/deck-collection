@@ -86,6 +86,19 @@ finished.
 Full slide rules are in [AGENTS.md](./AGENTS.md); the authoring workflow is the
 `create-presentation` skill in `.agents/skills/create-presentation/`.
 
+### Code blocks
+
+Slides may import `@tanstack/highlight`, so a deck can print syntax-highlighted
+code. Copy `presentations/code-block-demo/CodeBlock.tsx` into the deck and import
+it relatively — the demo deck is the worked example and is `private`, so it stays
+out of production builds.
+
+The block solves its own type size from the longest line, so it cannot overflow
+the 1920x1080 sheet and never needs a scrollbar. Colours live in the deck's
+`theme.ts`. Do not use the library's `createThemeCss()`: its base styles add
+`overflow-x: auto`, which the validator reports as clipped text. Details are in
+the skill's **Code blocks** section.
+
 ## Export
 
 `bun run export sample-intro` starts a Vite **dev** server on a free port (private

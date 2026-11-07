@@ -84,10 +84,16 @@ is:
 - `react` (and `react-dom`)
 - Tailwind CSS utilities — usable without importing anything
 - `lucide-react`
+- `@tanstack/highlight` — syntax-highlighted code blocks (`/core`, `/languages/*`,
+  `/react`, `/theme`, `/themes/*`)
 - Relative imports inside the same presentation directory
 
 **Anything else requires asking the user first.** The validator reports an
 off-list import as: *"ask the user before adding dependencies"*.
+
+Code blocks are deck-local: copy `presentations/code-block-demo/CodeBlock.tsx`
+into the deck. The rules that keep it inside 1920x1080 — fit by construction, no
+`createThemeCss()`, bundled mono face — are in the create-presentation skill.
 
 ### Floors that are not enforced but matter
 
