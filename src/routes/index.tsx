@@ -1,7 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Search, X } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import {
   Select,
   SelectContent,
@@ -13,6 +18,13 @@ import { PresentationCard } from "@/components/presentation/PresentationCard";
 import { invalidPresentations, presentationEntries } from "@/presentations/registry";
 
 type SortMode = "newest" | "title";
+
+// Base UI's Select renders the raw value unless it is given the item list,
+// so the trigger can show "Newest first" instead of "newest".
+const SORT_OPTIONS: { value: SortMode; label: string }[] = [
+  { value: "newest", label: "Newest first" },
+  { value: "title", label: "Title A–Z" },
+];
 
 export const Route = createFileRoute("/")({
   component: Dashboard,
@@ -70,39 +82,50 @@ function Dashboard() {
           </div>
 
           <div className="flex w-full max-w-full flex-col gap-2 sm:w-auto sm:min-w-[320px]">
-            <div className="flex h-10 items-center gap-2 border border-foreground/25 bg-card px-3 transition-colors focus-within:border-foreground">
-              <Search className="size-4 shrink-0 text-muted-foreground" aria-hidden />
-              <label htmlFor="library-search" className="sr-only">
-                Search decks by title, description, or course
-              </label>
-              <Input
+            <label htmlFor="library-search" className="sr-only">
+              Search decks by title, description, or course
+            </label>
+            <InputGroup className="h-10 bg-card">
+              <InputGroupAddon>
+                <Search aria-hidden />
+              </InputGroupAddon>
+              <InputGroupInput
                 id="library-search"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Search title, course, description"
-                className="w-full text-[13px] sm:w-[240px]"
+                className="text-[13px] sm:w-[240px]"
                 autoComplete="off"
                 spellCheck={false}
               />
               {query ? (
-                <button
-                  type="button"
-                  onClick={() => setQuery("")}
-                  aria-label="Clear search"
-                  className="text-muted-foreground hover:text-signal"
-                >
-                  <X className="size-3.5" aria-hidden />
-                </button>
+                <InputGroupAddon align="inline-end">
+                  <InputGroupButton
+                    size="icon-xs"
+                    variant="ghost"
+                    onClick={() => setQuery("")}
+                    aria-label="Clear search"
+                  >
+                    <X aria-hidden />
+                  </InputGroupButton>
+                </InputGroupAddon>
               ) : null}
-            </div>
+            </InputGroup>
 
-            <Select value={sort} onValueChange={(value) => setSort(value as SortMode)}>
-              <SelectTrigger className="h-10 w-full bg-card" aria-label="Sort decks">
+            <Select
+              value={sort}
+              onValueChange={(value) => setSort(value as SortMode)}
+              items={SORT_OPTIONS}
+            >
+              <SelectTrigger className="h-10 w-full" aria-label="Sort decks">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="newest">Newest first</SelectItem>
-                <SelectItem value="title">Title A–Z</SelectItem>
+                {SORT_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

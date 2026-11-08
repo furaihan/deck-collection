@@ -88,14 +88,13 @@ function PresentationOverview() {
 
         <div className="flex flex-col gap-3 lg:items-end">
           <Button
-            size="lg"
-            className="h-12 rounded-none bg-affirm px-6 text-[14px] text-affirm-foreground hover:bg-[#276b2a]"
+            className="h-12 bg-affirm px-6 text-[14px] text-affirm-foreground hover:bg-affirm/90"
             onClick={() =>
               void navigate({ to: "/p/$slug/present", params: { slug }, search: { slide: 1 } })
             }
             disabled={slides.status !== "ready"}
           >
-            <Play className="size-4 fill-current" aria-hidden />
+            <Play className="fill-current" data-icon="inline-start" aria-hidden />
             Present
             {slideCount !== null ? (
               <span className="ml-1 font-mono text-[11px] opacity-75">{slideCount} slides</span>
@@ -106,7 +105,7 @@ function PresentationOverview() {
             <a
               href={pdf.url}
               download={`${slug}.pdf`}
-              className="inline-flex h-12 items-center justify-center gap-2 border border-foreground/25 bg-card px-6 text-[14px] font-medium text-foreground transition-colors hover:border-foreground hover:bg-secondary"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-foreground/25 bg-card px-6 text-[14px] font-medium text-foreground transition-colors hover:border-foreground hover:bg-secondary"
             >
               <Download className="size-4" aria-hidden />
               Download PDF

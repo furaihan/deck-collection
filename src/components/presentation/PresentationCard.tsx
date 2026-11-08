@@ -50,8 +50,8 @@ export function PresentationThumbnail({ entry }: { entry: PresentationEntry }) {
 function ThumbnailFailure({ message }: { message: string }) {
   return (
     <div className="absolute inset-0 flex flex-col justify-end gap-1.5 bg-secondary p-3.5">
-      <Badge variant="signal" size="sm" className="w-fit">
-        <AlertTriangle className="size-2.5" aria-hidden /> Did not load
+      <Badge className="w-fit bg-signal text-signal-foreground hover:bg-signal!">
+        <AlertTriangle aria-hidden /> Did not load
       </Badge>
       <p className="line-clamp-2 text-[11px] leading-snug text-muted-foreground">{message}</p>
     </div>
@@ -70,60 +70,62 @@ export function PresentationCard({ entry, invalid = false }: PresentationCardPro
   const isPrivate = entry.visibility === "private";
 
   return (
-    <Card as="article" className="group relative h-full">
-      <Link
-        to="/p/$slug"
-        params={{ slug: entry.slug }}
-        className="flex h-full flex-col outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
-      >
-        {/*
-         * Gold is the deck plate. It holds the slide the way a mount holds a
-         * print, and it is the one place the shell's colour is loud.
-         */}
-        <div className="relative bg-gold p-[3px] transition-shadow duration-200 group-hover:shadow-[0_18px_36px_-24px_rgba(38,50,56,0.7)] motion-reduce:transition-none">
-          <div className="relative overflow-hidden bg-card">
-            <PresentationThumbnail entry={entry} />
-            {isPrivate ? (
-              <Badge variant="signal" className="absolute right-2.5 top-2.5 z-10">
-                Private
-              </Badge>
-            ) : null}
-          </div>
-        </div>
-
-        {/* The title block: every fact about the deck, in one ruled strip. */}
-        <div className="flex flex-1 flex-col border border-t-0 border-foreground/15 bg-card">
-          <div className="flex flex-1 items-start justify-between gap-3 px-3.5 pb-3 pt-3">
-            <h2 className="min-w-0">
-              <span className="block text-[17px] font-semibold leading-[1.18] tracking-[-0.014em] [text-wrap:balance]">
-                {entry.title}
-              </span>
-              <span className="mt-1.5 block truncate font-mono text-[9.5px] uppercase tracking-[0.14em] text-muted-foreground">
-                {entry.slug}
-              </span>
-            </h2>
-            <ArrowUpRight
-              className="mt-1 size-4 shrink-0 text-muted-foreground transition-all duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-signal motion-reduce:transition-none"
-              aria-hidden
-            />
+    <article className="group relative h-full">
+      <Card className="h-full gap-0 py-0">
+        <Link
+          to="/p/$slug"
+          params={{ slug: entry.slug }}
+          className="flex h-full flex-col outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+        >
+          {/*
+           * Gold is the deck plate. It holds the slide the way a mount holds a
+           * print, and it is the one place the shell's colour is loud.
+           */}
+          <div className="relative bg-gold p-[3px] transition-shadow duration-200 group-hover:shadow-[0_18px_36px_-24px_rgba(38,50,56,0.7)] motion-reduce:transition-none">
+            <div className="relative overflow-hidden bg-card">
+              <PresentationThumbnail entry={entry} />
+              {isPrivate ? (
+                <Badge className="absolute right-2.5 top-2.5 z-10 bg-signal text-signal-foreground hover:bg-signal!">
+                  Private
+                </Badge>
+              ) : null}
+            </div>
           </div>
 
-          <dl className="grid grid-cols-[1fr_auto_auto] items-end gap-x-3 border-t border-foreground/15 bg-background/60 px-3.5 py-2.5">
-            <Field label="Course" value={entry.course ?? "—"} muted={!entry.course} />
-            <Field label="Filed" value={formatDate(entry.date)} align="right" />
-            <Field
-              label="Sheets"
-              value={
-                <span className={cn(sheetCount !== null && "text-affirm")}>
-                  {sheetCount ?? "—"}
+          {/* The title block: every fact about the deck, in one ruled strip. */}
+          <div className="flex flex-1 flex-col border-t border-foreground/15 bg-card">
+            <div className="flex flex-1 items-start justify-between gap-3 px-3.5 pb-3 pt-3">
+              <h2 className="min-w-0">
+                <span className="block text-[17px] font-semibold leading-[1.18] tracking-[-0.014em] [text-wrap:balance]">
+                  {entry.title}
                 </span>
-              }
-              align="right"
-            />
-          </dl>
-        </div>
-      </Link>
-    </Card>
+                <span className="mt-1.5 block truncate font-mono text-[9.5px] uppercase tracking-[0.14em] text-muted-foreground">
+                  {entry.slug}
+                </span>
+              </h2>
+              <ArrowUpRight
+                className="mt-1 size-4 shrink-0 text-muted-foreground transition-all duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-signal motion-reduce:transition-none"
+                aria-hidden
+              />
+            </div>
+
+            <dl className="grid grid-cols-[1fr_auto_auto] items-end gap-x-3 border-t border-foreground/15 bg-background/60 px-3.5 py-2.5">
+              <Field label="Course" value={entry.course ?? "—"} muted={!entry.course} />
+              <Field label="Filed" value={formatDate(entry.date)} align="right" />
+              <Field
+                label="Sheets"
+                value={
+                  <span className={cn(sheetCount !== null && "text-affirm")}>
+                    {sheetCount ?? "—"}
+                  </span>
+                }
+                align="right"
+              />
+            </dl>
+          </div>
+        </Link>
+      </Card>
+    </article>
   );
 }
 
