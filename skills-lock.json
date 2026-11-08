@@ -11,7 +11,7 @@
       "source": "pbakaus/impeccable",
       "sourceType": "github",
       "skillPath": ".agents/skills/impeccable/SKILL.md",
-      "computedHash": "41445e7be6477b2ec0cbe890bf965c0a80928960e7f67dbc48b8fc7f28eb743a"
+      "computedHash": "32fd095cccdb137d71e3834c1e1da945aff214cb047202c2417c7d2b47d002c1"
     },
     "shadcn": {
       "source": "shadcn-ui/ui",
