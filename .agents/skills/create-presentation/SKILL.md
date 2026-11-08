@@ -119,42 +119,13 @@ Immediately after scaffolding:
   icons, and do not add an icon library. Use custom SVG only when Lucide has no
   suitable icon.
 
-## Code blocks
+## Code blocks (opt-in)
 
-A code block is opt-in. Most decks need none — only add one when a slide is actually
-about code, or when a snippet is the clearest way to state a rule. When it is:
-
-1. **Copy the component in.** `presentations/code-block-demo/CodeBlock.tsx` is the
-   reference implementation; copy it into the new deck and import it relatively
-   (`./CodeBlock`, `../CodeBlock`). Each deck owns its copy — slides may not import
-   from another presentation or from `src/`.
-2. **Register only what the deck shows**, at module scope in that one file:
-
-   ```ts
-   const highlighter = createHighlighter({ languages: [ts, tsx] })
-   ```
-
-   Never import the root entry `@tanstack/highlight`: it builds a registry from all
-   79 bundled languages instead of the two the deck needs.
-3. **Fit by construction.** The canvas is fixed at 1920x1080 and the validator fails
-   on clipped text, so a code block must never scroll or wrap by accident. Derive the
-   type size from the longest line (`size = field ÷ (chars × advance)`), keep
-   `white-space: pre`, and pass the `width` the block actually occupies. The demo's
-   glyph advance is 0.65 em for the bundled mono face. If a line cannot fit at the
-   24px floor, split the example — never shrink below the floor.
-4. **Do not use `createThemeCss()`.** Its base styles emit
-   `pre.th-code { overflow-x: auto }`, which creates a scroll container inside the
-   slide and is reported as "text is cut off in …". Take the token colours from the
-   deck's `theme.ts` and apply them as inline `color`; the `--th-*` variables and any
-   `th-*` theme CSS stay out of the deck.
-5. **Bundle the mono face** in the deck's `assets/` with `@font-face` and set
-   `fontFamily` explicitly on the block. Never inherit the shell's mono stack; a deck
-   that relies on a font it did not ship prints in a fallback.
-6. **Decorations are the point.** `focus` lights rows, `mark` underlines one fragment.
-   They are how a slide points at the line it is talking about, so use them for
-   before/after, diffs, and annotations instead of colouring text by hand.
-7. Code text is body copy: 24px minimum, 28px preferred. Captions in the head and
-   gutter may go to 18px; never below.
+Most decks need none. Add one only when a slide is actually about code, or a
+snippet is the clearest way to state a rule. When it is, read
+[reference/code-blocks.md](reference/code-blocks.md) before writing the slide —
+it covers the deck-local component, language registration, the fit math, the
+`theme.ts` contract, and the bundled mono face.
 
 ## Step 6: Self-check palette and icons
 
@@ -210,5 +181,7 @@ Keep it short:
 
 Read `presentation.json`, `Presentation.tsx`, and `theme.ts` first. Change colors in `theme.ts`, not per slide. Keep the existing palette unless the user asks to change it. Then run validate, look at the affected screenshots, and re-export.
 
-- Code block colours, size floor and glyph advance live in the deck's `theme.ts` (the `CODE` block) like every other colour; never colour a token inline in a slide.
-- A deck that already has `CodeBlock.tsx` keeps its copy. Do not point it at the demo's file.
+- If the deck has a code block, follow
+  [reference/code-blocks.md](reference/code-blocks.md): colours, size floor and
+  glyph advance live in the deck's `theme.ts`, and a deck that already has
+  `CodeBlock.tsx` keeps its copy.

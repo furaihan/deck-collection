@@ -97,7 +97,8 @@ The block solves its own type size from the longest line, so it cannot overflow
 the 1920x1080 sheet and never needs a scrollbar. Colours live in the deck's
 `theme.ts`. Do not use the library's `createThemeCss()`: its base styles add
 `overflow-x: auto`, which the validator reports as clipped text. Details are in
-the skill's **Code blocks** section.
+the skill's
+[code-block reference](./.agents/skills/create-presentation/reference/code-blocks.md).
 
 ## Export
 
