@@ -1,69 +1,38 @@
 # AGENTS.md
 
-A personal presentation library. Every deck is a folder of React components; this
-app discovers it, renders it on a fixed 1920x1080 canvas, and prints it to a PDF
-you submit to a lecturer. Agents author decks; humans decide what is public.
+A personal library of React decks rendered on a fixed 1920x1080 canvas and exported to PDF. Humans decide what is public.
 
----
+**New-deck router:** For any request to create a new deck, presentation, slides,
+or PPT, the FIRST action is to load `.agents/skills/create-presentation/SKILL.md`,
+before any other tool call.
 
 ## 1. The presentation contract
 
-A presentation is a directory. The **slug is the directory name** — that is the
-whole registry.
+A presentation directory's name is its slug and registry entry:
 
 ```
 presentations/<slug>/
   presentation.json      metadata (required)
-  Presentation.tsx       default export: the ordered slide array (required)
+  Presentation.tsx       default export: ordered slide array (required)
   slides/Slide01.tsx     any file names, any number
-  assets/                images, fonts; empty by default
-  theme.ts               optional, recommended: colours + type for this deck
+  assets/                images and fonts; empty by default
+  theme.ts               optional, recommended: colours and type
 ```
 
-**Discovery** is `import.meta.glob` over `presentations/*/`. Creating the folder
-registers the deck; deleting it unregisters it. There is no index file to update.
+Discovery uses `import.meta.glob` over `presentations/*/`; creating registers,
+deleting unregisters, and there is no index to update.
 
-### presentation.json
+`presentation.json`: non-empty `title` and `description`; date `YYYY-MM-DD`;
+visibility `"public"` or `"private"`; optional non-empty `course`.
 
-```json
-{
-  "title": "Linear algebra, week 4",
-  "description": "One sentence about what this deck covers.",
-  "course": "Optional course name",
-  "date": "2026-11-04",
-  "visibility": "private"
-}
-```
-
-| field         | type                      | required |
-| ------------- | ------------------------- | -------- |
-| `title`       | non-empty string          | yes      |
-| `description` | non-empty string          | yes      |
-| `course`      | non-empty string          | no       |
-| `date`        | ISO date `YYYY-MM-DD`     | yes      |
-| `visibility`  | `"public"` or `"private"` | yes      |
-
-### Presentation.tsx
-
-```tsx
-import Slide01 from "./slides/Slide01";
-import Slide02 from "./slides/Slide02";
-
-// Array order is slide order. Never derive it from file names.
-export default [Slide01, Slide02];
-```
-
-- Default-export a **non-empty, ordered array** of components.
-- The array length is the slide count. An empty array is a validation error.
-- A slide that throws is contained by an error boundary; the rest of the deck
-  still renders.
-
----
+`Presentation.tsx` default-exports a **non-empty, ordered array** of components;
+array order is slide order, never from file names. Its length is the slide count.
+An empty array is a validation error. An error boundary contains throwing slides.
 
 ## 2. Hard rules for slides
 
-These are enforced by `bun run validate`. Breaking one is a **validation error**,
-not a style preference.
+`bun run validate` checks detectable failures, not palette or icon requirements
+in §6.
 
 | Rule | Why |
 | --- | --- |
@@ -78,90 +47,78 @@ not a style preference.
 
 ### Allowed dependencies
 
-The allowlist lives in **`presentations.config.ts`** (`allowedImports`). Today it
-is:
+`presentations.config.ts` (`allowedImports`) permits:
 
-- `react` (and `react-dom`)
-- Tailwind CSS utilities — usable without importing anything
+- `react` and `react-dom`
+- Tailwind CSS utilities (no import needed)
 - `lucide-react`
-- `@tanstack/highlight` — syntax-highlighted code blocks (`/core`, `/languages/*`,
-  `/react`, `/theme`, `/themes/*`)
+- `@tanstack/highlight` (`/core`, `/languages/*`, `/react`, `/theme`, `/themes/*`)
 - Relative imports inside the same presentation directory
 
-**Anything else requires asking the user first.** The validator reports an
-off-list import as: *"ask the user before adding dependencies"*.
+Ask before adding dependencies; the validator reports off-list imports as
+*"ask the user before adding dependencies"*.
 
-Code blocks are deck-local: copy `presentations/code-block-demo/CodeBlock.tsx`
-into the deck. The rules that keep it inside 1920x1080 — fit by construction, no
-`createThemeCss()`, bundled mono face — are in the create-presentation skill.
+Code blocks are deck-local: copy `presentations/code-block-demo/CodeBlock.tsx`;
+the skill specifies its fit, theme, and bundled mono-face rules.
 
 ### Floors that are not enforced but matter
 
-- Body text **≥ 28px**, headings **≥ 56px**. Below that, a PDF on a projector is
-  a grey smudge. Captions may go to 20–24px; never below 18px.
-- Contrast: aim for WCAG AA (4.5:1) on body text, 3:1 on large headings.
-
----
+- Body text **≥ 28px**, headings **≥ 56px**; captions may be 20–24px, never below 18px.
+- Contrast: aim for WCAG AA (4.5:1 body text, 3:1 large headings).
 
 ## 3. Design guidance
 
-The deck's visual system — colours, type, spacing — lives in
-`presentations/<slug>/theme.ts` and every slide imports from it. Never colour a
-slide individually.
-
-Design work runs through the **impeccable** skill; the process and the design
-requirements are in `.agents/skills/create-presentation/SKILL.md`.
-
----
+The deck's visual system (colours, type, spacing) lives in
+`presentations/<slug>/theme.ts`, imported by every slide. Never colour slides
+individually. Design uses **impeccable**; creation requirements are in
+`.agents/skills/create-presentation/SKILL.md`.
 
 ## 4. Workflow: creating a new presentation
 
-The full procedure is in `.agents/skills/create-presentation/SKILL.md`. Read it
-before step 3. The outline:
+Read `.agents/skills/create-presentation/SKILL.md` before step 1. Outline:
 
-1. **Gather** anything the request does not already say — topic or source
-   material, course, audience, language, rough slide count.
-2. **Settle the palette** (at least 4 colours with roles) before writing a slide.
-3. **Scaffold:** `bun run new <slug> "<Title>"` — creates a private deck with
-   metadata, a three-slide array, `theme.ts` and an empty `assets/`. Or build the
-   folder by hand; same files, same rules.
-4. **Design and write the slides** with impeccable, against 1920x1080, importing
-   from `../theme`.
-5. **Validate:** `bun run validate <slug>` — fix every error, review every
-   warning.
-6. **Look at the screenshots** in `.validation/<slug>/`. The validator measures
-   geometry; only you can see whether it looks good.
+1. **Gather** topic/source material, course, audience, language, and rough slide
+   count from the request and supplied material; defer questions until after the
+   palette gate.
+2. **Palette gate:** Unless the user explicitly says not to ask, if no palette
+   was supplied, the first reply MUST contain only the 3 options defined in the
+   skill; do no scaffolding or file edits, then stop and wait for the user's choice.
+3. **Scaffold:** `bun run new <slug> "<Title>"` creates a private deck with
+   metadata, three-slide array, `theme.ts`, and empty `assets/`. Or build the
+   same structure by hand. Replace the default theme and slides as in the skill.
+4. **Design and write** with impeccable on 1920x1080, importing from `../theme`.
+5. **Validate:** `bun run validate <slug>`; fix errors and review warnings.
+6. **Inspect** `.validation/<slug>/` screenshots; only you can judge appearance.
 7. **Typecheck and export:** `bun run typecheck`, then `bun run export <slug>`;
-   the page count must equal the slide count.
-8. **Report** slide count, palette, PDF path and size, remaining warnings.
+   PDF page count must equal slide count.
+8. **Report** slide count, palette, PDF path and size, and remaining warnings.
 
 ## 5. Workflow: editing an existing presentation
 
-1. Read `presentations/<slug>/presentation.json`, `Presentation.tsx` and
-   `theme.ts` first.
-2. Edit the slides; change colours in `theme.ts`, never per slide. Keep the
-   existing palette unless the user asks for a new one.
-3. `bun run validate <slug>` — fix every error, then re-open the affected
-   `.validation/<slug>` screenshots.
-4. `bun run export <slug>` again and report what changed. The validator warns
-   when the PDF is older than the sources.
-
----
+1. Read `presentation.json`, `Presentation.tsx`, and `theme.ts` first.
+2. Edit slides; change colours in `theme.ts`, never per slide. Keep the palette
+   unless asked to change it.
+3. Validate, fix errors, and re-open affected screenshots; then re-export and
+   report what changed.
 
 ## 6. Rules you must not break
 
-- **Never say a presentation is "done"** before `bun run validate <slug>` passes
+- **Palette gate:** Unless the user explicitly says not to ask, if no palette was
+  supplied, the first reply MUST contain only the 3 options defined in the skill;
+  do no scaffolding or file edits, then stop and wait for the user's choice.
+- **Icons:** Every content slide MUST include at least 1 Lucide icon, except
+  cover, closing, code-block, and full-bleed figure slides.
+- Never say a presentation is "done" before `bun run validate <slug>` passes
   with zero errors **and** you have looked at the generated screenshots.
-- **New presentations are `"private"`.** Only the user decides when a deck
-  becomes `"public"`. Never flip the flag yourself.
-- **Never put secrets in a deck.** Production builds drop private decks entirely,
-  but public ones ship their source.
-- **Language**: write slide content in the language the user asks for. If they do
-  not say, use the language of their request.
-- **Package manager is Bun.** `bun install`, `bun add`, `bun run <script>`. Never
-  npm, yarn, or pnpm. Commit `bun.lock`; never commit other lock files.
-
----
+- New presentations are `"private"`; only the user decides when a deck becomes
+  `"public"`. Never flip the flag yourself.
+- Never put secrets in a deck. Production builds drop private decks entirely;
+  public decks ship their source.
+- Write slide content in the language requested, otherwise in the request's
+  language.
+- Use Bun (`bun install`, `bun add`, `bun run <script>`), never npm/yarn/pnpm.
+  Commit `bun.lock`; never commit other lock files.
+- `.material` is for presentation materials only.
 
 ## 7. Commands
 
@@ -186,18 +143,10 @@ One-time browser install for `export` and `validate`:
 bunx playwright install chromium
 ```
 
----
-
 ## 8. What the validator checks
 
-**Static** (no browser): metadata valid (zod), `Presentation.tsx` default-exports
-a non-empty array, orphan files in `slides/`, shadcn imports, theme variables,
-viewport units and utilities, external resources, off-allowlist imports,
-oversized images in `assets/`, unreferenced font files.
-
-**Runtime** (headless Chromium, one page per slide at 1920x1080): console errors,
-uncaught exceptions, failed requests, text past the canvas, text clipped by its
-own container, broken images, fonts that fell back to a system face.
+See `scripts/_static.ts` and `scripts/validate.ts` for exact checks. The validator
+prints a `fix:` line per problem; palette and icon rules are not validated.
 
 Every problem prints as:
 
@@ -208,11 +157,7 @@ Every problem prints as:
 
 The last line is the verdict: `PASS: 0 errors, 2 warnings` or
 `FAIL: 3 errors, 1 warning`. Exit code 0 = pass; warnings never fail.
-
 Screenshots land in `.validation/<slug>/slide-NN.png` (gitignored).
-
----
-
 ## 9. Routes and visibility
 
 | route | purpose |
@@ -222,11 +167,4 @@ Screenshots land in `.validation/<slug>/slide-NN.png` (gitignored).
 | `/p/$slug/present` | fullscreen presenter (`?slide=N`) |
 | `/export/$slug` | bare stacked slides — the PDF capture surface |
 
-Private decks appear in development with a badge and are **removed from
-production bundles**, code and metadata alike; their PDFs never reach `dist/`.
-
 **PDF is the only supported export format.** PPTX export and browser-print shortcuts are not supported and must not be added. If the user says something like "create a PPT," treat it as a request to create a new presentation within the application, not as a request to generate an actual PPT file.
-
-### `.material` Folder
-
-The `.material` folder is intended for prbuesentation materials only. Do not put anything else in this folder.

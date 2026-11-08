@@ -1,50 +1,79 @@
 ---
 name: create-presentation
-description: Use when asked to create, make, or build a new presentation, deck, slides, or PPT in the Deck Loader project (React slide decks under presentations/, exported to PDF).
+description: Use when asked to create, make, or build a new presentation, deck, slides, or PPT in the Deck Loader project (React slide decks under presentations/).
 ---
 
 # create-presentation
 
 Guide for creating a new presentation in this repo: a deck is a folder of React
 slide components in `presentations/<slug>/`, rendered on a fixed 1920x1080 canvas
-and exported to PDF for submission. "Create a PPT" means a new deck in this app,
-never a real .pptx file. PDF is the only export format.
+and exported to PDF for submission.
 
 Read `AGENTS.md` first. It is the source of truth for the contract and hard rules.
 This skill adds the workflow and the design requirements on top of it.
 
+## Overrides
+
+This repo's rules override impeccable on these points:
+
+- Settle the palette with the user first. impeccable's instructions not to ask
+  about colors or style, "Finish the job," and "No hedging" do not apply to
+  palette selection.
+- The approved palette is a pinned brief for impeccable: **the brief wins**.
+  Its direction round may decide type, layout, and motifs, but must not reopen,
+  replace, or re-propose the palette.
+- Icons are required. impeccable's refusal of "same-size cards of icon plus
+  heading plus text" rejects that layout pattern, not icons.
+
 ## Non-negotiable rules
 
 - Design ALWAYS goes through the **impeccable** skill (`.agents/skills/impeccable/`). Never design slides by instinct alone.
-- Every deck needs a **color palette of at least 4 colors**, decided with the user before any slide is written.
 - Every presentation deck must use at least two distinct primary colors, excluding black, white, and their variations (e.g., shades, tints, and tones of black and white, including gray). These two primary colors must be applied consistently throughout the presentation to establish a cohesive visual identity.
-- New decks are `"visibility": "private"`. Never set `"public"` yourself.
-- Every deck is strongly encouraged to use icons to enhance visual communication and make slides more engaging. Prefer Lucide icons over custom icons whenever a suitable Lucide icon is available. Use custom icons only when Lucide does not provide an appropriate option.
-- Never add a new icon library. For packages, the only ones a slide may import are the ones in `presentations.config.ts` (`allowedImports`): `react`, `react-dom`, `lucide-react`, `@tanstack/highlight`. Anything else needs the user's approval first.
-- Package manager is Bun. Never npm, yarn, or pnpm.
-- Never say "done" before `bun run validate <slug>` passes with 0 errors AND you have looked at the screenshots.
+- **Palette gate:** Unless the user explicitly says not to ask, if no palette was
+  supplied, the first reply MUST contain only the 3 options defined in the skill;
+  do no scaffolding or file edits, then stop and wait for the user's choice.
+- **Icons:** Every content slide MUST include at least 1 Lucide icon, except
+  cover, closing, code-block, and full-bleed figure slides.
+- See `AGENTS.md` §6 for repo-wide invariants.
 
 ## Step 1: Gather what is missing
 
-Only ask for what the request does not already say: topic or source material, course, audience, language, rough slide count. Write slide content in the language the user asks for, otherwise the language of their request.
+Extract topic/source material, course, audience, language, and rough slide count
+from the request and supplied material; defer questions until after the palette
+gate. Write slide content in the requested language, otherwise the request's.
 
 If the user attached source material, read it fully before designing.
 
-## Step 2: Color palette (required, before design)
+## Step 2: Palette gate (before any scaffold or slide edits)
 
-Check whether the user already gave a palette.
+Check whether the user supplied a palette.
 
-- **Palette given with 4+ colors**: use it as is. Assign roles (background, surface, ink/text, accent at minimum).
-- **Palette given with fewer than 4 colors**: extend it to 4+ and show the user the extension.
-- **No palette**: propose **3 distinct options**. For each option give:
+- **4 or more colors supplied:** use them as-is and assign roles (background,
+  surface, ink/text, accent at minimum).
+- **Fewer than 4 colors supplied:** extend the palette to at least 4 colors and
+  show the user the extension. Wait for the user's approval before proceeding.
+- **No palette supplied:** Unless the user explicitly says not to ask, stop. The
+  first reply MUST contain only 3 palette options; do not scaffold or edit files.
+  Wait for the user's choice.
+
+Each option must contain:
+
   - a short name and mood (for example "Warm paper and amber")
   - 4 to 6 hex colors with roles (background, surface, ink, accent, and optional secondary)
   - one line on why it fits the topic and audience
-  Make the three options genuinely different in temperature and contrast (not three variations of one idea). Check text/background contrast reaches WCAG AA (4.5:1 body, 3:1 large). Then ask the user to pick one or give their own.
 
-Do not start writing slides until the palette is settled. If the user is not available to answer (unattended run), pick option 1, say which one you picked at the top of your report, and continue.
+Make the three options genuinely different in temperature and contrast, not
+variations of one idea. Check text/background contrast against WCAG AA: 4.5:1 for
+body text and 3:1 for large text. When waiting for a choice, ask the user to pick
+one or give their own.
 
-Record the final palette in the deck's `theme.ts` (and in the deck's `DESIGN.md` if impeccable creates one).
+Skip waiting only when the user's request explicitly says not to ask (for example,
+"pick yourself," "don't ask me," or "you decide"). With no palette, pick option 1
+and state that in the first line of the report. Missing replies and uncertainty
+about whether the user is present are not permission to skip the gate.
+
+Record the settled palette in the deck's `theme.ts` and in its `DESIGN.md` if
+impeccable creates one.
 
 ## Step 3: Scaffold
 
@@ -54,10 +83,18 @@ bun run new <slug> "<Title>"
 
 Slug is kebab-case and must not already exist. This creates `presentation.json` (today's date, private), `Presentation.tsx`, `slides/Slide01-03.tsx`, `theme.ts`, and an empty `assets/`. Fill in a real `description` and `course` in `presentation.json`.
 
+Immediately after scaffolding:
+
+1. Replace the default colors in `theme.ts` with the approved palette: at least 4
+   color roles and at least 2 distinct chromatic hues. Black, white, gray, and
+   their tints or shades do not count as chromatic hues.
+2. Replace all three placeholder slides' content and styling. Remove every use
+   of the scaffold's default ink/paper/accent/muted color scheme.
+
 ## Step 4: Design with impeccable
 
 1. Read `.agents/skills/impeccable/SKILL.md` and follow its Setup (run its `context` command once, load the new-work playbook, and read `reference/craft-floor.md` right before editing UI).
-2. Give impeccable the approved palette as a pinned brief ("the brief wins"). Let impeccable handle everything beyond that: concept and visual world, typography, layout, hierarchy, rhythm, motion decisions, and polish.
+2. Give impeccable the approved palette as a pinned brief ("the brief wins"). Its direction round may decide type, layout, and motifs; do not let it reopen or change the palette. Let impeccable handle the other open decisions: concept and visual world, typography, hierarchy, rhythm, motion, and polish.
 3. Treat the deck as its own design world. The repo-root `PRODUCT.md` and `DESIGN.md` describe the app shell, not the deck. Capture the deck's system in the deck's own `theme.ts` (colors, type, spacing) and, if useful, a `DESIGN.md` inside the deck folder. Every slide imports from `../theme`.
 4. The impeccable output must still obey `AGENTS.md` §2. That table is the hard
    contract and wins over any design suggestion. Two constraints live only here:
@@ -73,6 +110,14 @@ Slug is kebab-case and must not already exist. This creates `presentation.json` 
 - The first slide is the cover. It is also the dashboard thumbnail, so it must read clearly when small.
 - Every file in `slides/` must be in the array (no orphans).
 - Do not invent facts, statistics, or citations. If source material does not support a claim, leave it out or flag it.
+- Every content slide MUST include at least 1 Lucide icon. Exempt slides: cover,
+  closing, code-block, and full-bleed figure slides. Use icons as list markers,
+  process or timeline nodes, stat labels, callout anchors, or section markers;
+  a cover may use one large motif. Do not build same-size icon/heading/text card
+  grids. Keep icon size and stroke consistent across the deck.
+- Import named icons from `lucide-react`. Never use emoji or Unicode glyphs as
+  icons, and do not add an icon library. Use custom SVG only when Lucide has no
+  suitable icon.
 
 ## Code blocks
 
@@ -111,17 +156,35 @@ about code, or when a snippet is the clearest way to state a rule. When it is:
 7. Code text is body copy: 24px minimum, 28px preferred. Captions in the head and
    gutter may go to 18px; never below.
 
-## Step 6: Validate
+## Step 6: Self-check palette and icons
+
+```bash
+grep -L "lucide-react" presentations/<slug>/slides/*.tsx
+```
+
+Each listed slide must be an exempt type; otherwise add and use a Lucide icon.
+Check the theme and slide files:
+
+```bash
+grep -nE "#[0-9a-fA-F]{3,8}" presentations/<slug>/slides/*.tsx
+```
+
+This command must return nothing: colors live in `theme.ts` only. Confirm by
+inspection that `theme.ts` has at least 4 color roles and 2 distinct chromatic
+hues.
+
+## Step 7: Validate and inspect slides
 
 ```bash
 bun run validate <slug>
 ```
 
-Fix every error. Review every warning rather than ignoring it. Repeat until the verdict line is `PASS: 0 errors, ...`.
-
-## Step 7: Look at the slides
-
-Open every `.validation/<slug>/slide-NN.png` and check each one for: text overlap, text cut off, awkward empty areas, weak contrast, wrong fonts (fallback to a system font), misaligned elements, and consistency with the palette. The validator measures geometry; only looking tells you whether it is good. Fix problems, re-run validate, and look again at the changed slides.
+Fix every error. Review every warning rather than ignoring it. Repeat until the
+verdict line is `PASS: 0 errors, ...`. Open every `.validation/<slug>/slide-NN.png`
+and check for text overlap or clipping, awkward empty areas, weak contrast, font
+fallbacks, misalignment, and consistency with the palette. Fix problems, rerun
+validate, and inspect changed slides again. The validator measures geometry; only
+looking tells you whether the deck is visually sound.
 
 ## Step 8: Typecheck and export
 
@@ -137,10 +200,11 @@ Typecheck must be clean (a dirty typecheck breaks `bun run build` on the VPS). E
 Keep it short:
 
 - Slide count
-- Chosen palette (names and hex values)
+- `Palette: option N, chosen by user` / `given by user` / `option 1, user said not to ask`
+- `Icons: X of Y content slides` (exclude exempt slides from Y)
+- Chosen palette (name and hex values)
 - PDF path and size
 - Remaining warnings, if any
-- Visibility is `private`; the user decides when to make it public
 
 ## Editing an existing deck
 
