@@ -1,0 +1,60 @@
+/*
+ * The deck's own faces, bundled beside it. No CDN, no system fallback in the
+ * export: a missing file here is a broken PDF.
+ */
+
+@font-face {
+  font-family: "Barlow Condensed";
+  font-style: normal;
+  font-weight: 600;
+  font-display: block;
+  src: url("./assets/barlow-condensed-600.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Barlow Condensed";
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url("./assets/barlow-condensed-700.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Archivo";
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url("./assets/archivo-400.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Archivo";
+  font-style: normal;
+  font-weight: 500;
+  font-display: block;
+  src: url("./assets/archivo-500.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Archivo";
+  font-style: normal;
+  font-weight: 600;
+  font-display: block;
+  src: url("./assets/archivo-600.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Chivo Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url("./assets/chivo-mono-400.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Chivo Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: block;
+  src: url("./assets/chivo-mono-500.woff2") format("woff2");
+}
